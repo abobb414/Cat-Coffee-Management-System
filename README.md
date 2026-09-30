@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./docs/images/logo-white.png" />
-  <img src="./docs/images/logo.png" alt="猫咖管理系统" width="104" />
+  <img src="./docs/images/logo.png" alt="猫咖管理系统" width="124" />
 </picture>
 
 # 猫咖管理系统
@@ -21,7 +21,7 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat-square)](sql/cat_coffee.sql)
 [![RBAC](https://img.shields.io/badge/RBAC-3%20roles%20%C2%B7%2032%20permissions-8B5CF6?style=flat-square)](#权限模型)
 [![API Smoke](https://img.shields.io/badge/API%20smoke-17%2F17-22C55E?style=flat-square)](#测试)
-[![Layout](https://img.shields.io/badge/layout-13%20pages%20%C3%97%205%20viewports%20%C2%B7%200%20overflow-0EA5E9?style=flat-square)](#测试)
+[![Layout](https://img.shields.io/badge/layout-65%2F65%20%C2%B7%200%20overflow-0EA5E9?style=flat-square)](#测试)
 
 </div>
 
