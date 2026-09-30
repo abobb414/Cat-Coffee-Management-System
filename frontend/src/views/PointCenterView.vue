@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { syncBus } from '../utils/syncBus'
 import { fetchPointFlows, fetchPointSummary } from '../api/modules'
 import { hasRole } from '../utils/auth'
 
@@ -29,7 +30,19 @@ const loadData = async () => {
   page.total = flowData.total
 }
 
-onMounted(loadData)
+let stopSync
+const refreshOnFocus = () => loadData()
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', ({ resource }) => {
+    if (resource === 'orders' || resource === 'points' || resource === 'coupons') loadData()
+  })
+  window.addEventListener('focus', refreshOnFocus)
+})
+onBeforeUnmount(() => {
+  stopSync?.()
+  window.removeEventListener('focus', refreshOnFocus)
+})
 </script>
 
 <template>

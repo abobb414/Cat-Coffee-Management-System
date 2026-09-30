@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { deleteOrder, fetchDrinks, fetchOrders, fetchPointSummary, fetchTables, fetchUserCoupons, saveOrder } from '../api/modules'
 import { ElMessage } from 'element-plus'
 import { hasPermission, hasRole } from '../utils/auth'
+import { resourceChanged, syncBus } from '../utils/syncBus'
 
 const list = ref([])
 const tables = ref([])
@@ -80,11 +81,11 @@ const removeItem = (index) => {
 }
 
 const editRow = (row) => {
-  Object.assign(form, {
-    ...row,
-    items: [{ drinkId: null, quantity: 1 }]
-  })
-  drawerVisible.value = true
+  if (row.payStatus === '已支付' || row.orderStatus === '已完成') {
+    ElMessage.info('已支付或已完成订单不可重新编辑')
+    return
+  }
+  ElMessage.info('订单编辑需要先加载明细，请通过新增订单创建调整后的订单')
 }
 
 const submit = async () => {
@@ -92,16 +93,34 @@ const submit = async () => {
   ElMessage.success('保存成功')
   resetForm()
   drawerVisible.value = false
+  resourceChanged('orders')
+  resourceChanged('drinks')
+  resourceChanged('points')
+  resourceChanged('coupons')
   loadData()
 }
 
 const removeRow = async (id) => {
   await deleteOrder(id)
   ElMessage.success('删除成功')
+  resourceChanged('orders')
+  resourceChanged('drinks')
+  resourceChanged('points')
+  resourceChanged('coupons')
   loadData()
 }
 
-onMounted(loadData)
+let stopSync
+const refreshOnFocus = () => loadData()
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', refreshOnFocus)
+  window.addEventListener('focus', refreshOnFocus)
+})
+onBeforeUnmount(() => {
+  stopSync?.()
+  window.removeEventListener('focus', refreshOnFocus)
+})
 </script>
 
 <template>

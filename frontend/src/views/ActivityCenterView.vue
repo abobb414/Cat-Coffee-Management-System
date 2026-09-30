@@ -1,14 +1,15 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { deleteActivity, fetchActivities, saveActivity } from '../api/modules'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { hasRole } from '../utils/auth'
+import { hasPermission, hasRole } from '../utils/auth'
+import { resourceChanged, syncBus } from '../utils/syncBus'
 
 const list = ref([])
 const page = reactive({ current: 1, size: 8, total: 0 })
 const query = reactive({ status: '', activityType: '' })
 const drawerVisible = ref(false)
-const canManage = hasRole('admin')
+const canManage = hasPermission('activity:write')
 const isCustomerUser = hasRole('user')
 const form = reactive({
   id: null,
@@ -80,6 +81,7 @@ const submit = async () => {
   ElMessage.success('活动保存成功')
   drawerVisible.value = false
   resetForm()
+  resourceChanged('activities')
   loadData()
 }
 
@@ -87,10 +89,18 @@ const removeRow = async (id) => {
   await ElMessageBox.confirm('确认删除这条活动吗？', '删除活动', { type: 'warning' })
   await deleteActivity(id)
   ElMessage.success('活动删除成功')
+  resourceChanged('activities')
   loadData()
 }
 
-onMounted(loadData)
+let stopSync
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', ({ resource }) => {
+    if (resource === 'activities') loadData()
+  })
+})
+onBeforeUnmount(() => stopSync?.())
 </script>
 
 <template>
@@ -126,7 +136,7 @@ onMounted(loadData)
             <small>规则：{{ item.rules?.map((rule) => `${rule.ruleType} - ${rule.ruleValue}`).join('；') || '暂无规则' }}</small>
           </div>
           <div style="display: grid; gap: 8px; justify-items: end;">
-            <strong :style="{ color: item.status === 1 ? '#bf6f35' : '#8d7d70' }">{{ item.status === 1 ? '进行中' : '已停用' }}</strong>
+            <span class="record-status" :class="item.status === 1 ? 'is-active' : 'is-muted'">{{ item.status === 1 ? '进行中' : '已停用' }}</span>
             <div v-if="canManage" class="table-actions">
               <el-button link type="primary" @click="editRow(item)">编辑</el-button>
               <el-button link type="danger" @click="removeRow(item.id)">删除</el-button>

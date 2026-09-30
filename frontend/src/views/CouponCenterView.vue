@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import {
   deleteCouponTemplate,
   fetchCouponTemplates,
@@ -10,6 +10,7 @@ import {
 } from '../api/modules'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { hasPermission, hasRole } from '../utils/auth'
+import { resourceChanged, syncBus } from '../utils/syncBus'
 
 const templates = ref([])
 const userCoupons = ref([])
@@ -93,6 +94,7 @@ const submit = async () => {
   ElMessage.success('优惠券模板保存成功')
   drawerVisible.value = false
   resetForm()
+  resourceChanged('coupons')
   loadData()
 }
 
@@ -100,6 +102,7 @@ const removeRow = async (id) => {
   await ElMessageBox.confirm('确认删除该优惠券模板吗？', '删除确认', { type: 'warning' })
   await deleteCouponTemplate(id)
   ElMessage.success('优惠券模板删除成功')
+  resourceChanged('coupons')
   loadData()
 }
 
@@ -113,16 +116,27 @@ const sendCoupon = async (templateId) => {
   }
   await issueCoupon(templateId, { userId: Number(value) })
   ElMessage.success('优惠券发放成功')
+  resourceChanged('coupons')
+  resourceChanged('points')
   loadData()
 }
 
 const claimCoupon = async (templateId) => {
   await receiveCoupon(templateId)
   ElMessage.success('优惠券领取成功')
+  resourceChanged('coupons')
+  resourceChanged('points')
   loadData()
 }
 
-onMounted(loadData)
+let stopSync
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', ({ resource }) => {
+    if (resource === 'coupons' || resource === 'points') loadData()
+  })
+})
+onBeforeUnmount(() => stopSync?.())
 </script>
 
 <template>
@@ -195,7 +209,7 @@ onMounted(loadData)
               <small>门槛 ¥{{ item.thresholdAmount }}，优惠 ¥{{ item.discountAmount }}</small>
               <small>来源：{{ item.sourceType }}，到期：{{ item.expireTime || '-' }}</small>
             </div>
-            <strong :style="{ color: item.status === '未使用' ? '#bf6f35' : '#8d7d70' }">{{ item.status }}</strong>
+            <span class="record-status" :class="item.status === '未使用' ? 'is-active' : 'is-muted'">{{ item.status }}</span>
           </div>
         </div>
 

@@ -1,19 +1,28 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { clearAuth, getToken, getUserInfo, hasRole, setUserInfo } from './utils/auth'
 import { changePassword, fetchCurrentUser, logout as logoutApi } from './api/modules'
+import { syncBus } from './utils/syncBus'
 
 const route = useRoute()
 const router = useRouter()
 const currentUser = ref(getUserInfo())
+const mobileMenuOpen = ref(false)
+// 优先取角色化菜单里的名称：顾客端同一路由的措辞与管理端不同
+// （如 /tables 管理端叫「桌台管理」、顾客端叫「桌台状态」），
+// 若先取 route.meta.label 会把管理端措辞透给顾客。
+const pageTitle = computed(
+  () => visibleMenus.value.find((item) => item.path === route.path)?.label || route.meta.label || '猫咖平台'
+)
+const refreshCurrentUser = () => syncCurrentUser()
 
 const menus = [
   { path: '/dashboard', label: '经营看板', permission: 'dashboard:view' },
   { path: '/cats', label: '猫咪管理', userLabel: '猫咪浏览', permission: 'cat:read' },
   { path: '/drinks', label: '饮品管理', userLabel: '饮品菜单', permission: 'drink:read' },
-  { path: '/tables', label: '桌台管理', permission: 'table:read' },
+  { path: '/tables', label: '桌台管理', userLabel: '桌台状态', permission: 'table:read' },
   { path: '/reservations', label: '预约管理', userLabel: '我的预约', permission: 'reservation:read' },
   { path: '/orders', label: '订单管理', userLabel: '我的订单', permission: 'order:read' },
   { path: '/member/points', label: '会员积分', userLabel: '积分中心', permission: 'points:read' },
@@ -103,12 +112,20 @@ const logout = async () => {
   }
 }
 
-onMounted(syncCurrentUser)
+onMounted(() => {
+  syncCurrentUser()
+  window.addEventListener('focus', refreshCurrentUser)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', refreshCurrentUser)
+})
 
 watch(
   () => route.fullPath,
   () => {
     currentUser.value = getUserInfo()
+    mobileMenuOpen.value = false
   }
 )
 </script>
@@ -118,11 +135,12 @@ watch(
 
   <router-view v-if="!showShell" />
 
-  <div v-else-if="!checkingAuth" class="layout">
+  <div v-else-if="!checkingAuth" class="layout" :class="{ 'menu-open': mobileMenuOpen }">
+    <button class="mobile-menu-backdrop" aria-label="关闭导航" @click="mobileMenuOpen = false" />
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-logo" src="/assets/cat-cafe-logo.png" alt="Cat Cafe Logo" />
-        <div>
+        <img class="brand-logo" src="/assets/hot-chocolate.png" alt="Cat Cafe Logo" />
+        <div class="brand-copy">
           <h1>猫咖平台</h1>
           <p>Cat Coffee Console</p>
         </div>
@@ -130,7 +148,6 @@ watch(
 
       <div class="user-panel">
         <strong>{{ userInfo?.nickname || '未登录用户' }}</strong>
-        <small>{{ userInfo?.roles?.join(' / ') || 'guest' }}</small>
       </div>
 
       <el-menu
@@ -156,6 +173,11 @@ watch(
     </aside>
 
     <main class="content">
+      <header class="mobile-topbar">
+        <el-button class="mobile-menu-trigger" aria-label="打开导航" @click="mobileMenuOpen = true">菜单</el-button>
+        <strong>{{ pageTitle }}</strong>
+        <span class="mobile-topbar-user">{{ userInfo?.nickname || '' }}</span>
+      </header>
       <router-view />
     </main>
   </div>

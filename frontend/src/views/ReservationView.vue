@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { deleteReservation, fetchReservations, fetchTables, saveReservation } from '../api/modules'
 import { ElMessage } from 'element-plus'
 import { hasPermission, hasRole } from '../utils/auth'
+import { resourceChanged, syncBus } from '../utils/syncBus'
 
 const list = ref([])
 const tables = ref([])
@@ -59,6 +60,8 @@ const submit = async () => {
   ElMessage.success('保存成功')
   resetForm()
   drawerVisible.value = false
+  resourceChanged('reservations')
+  resourceChanged('tables')
   loadData()
 }
 
@@ -70,10 +73,22 @@ const editRow = (row) => {
 const removeRow = async (id) => {
   await deleteReservation(id)
   ElMessage.success('删除成功')
+  resourceChanged('reservations')
+  resourceChanged('tables')
   loadData()
 }
 
-onMounted(loadData)
+let stopSync
+const refreshOnFocus = () => loadData()
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', refreshOnFocus)
+  window.addEventListener('focus', refreshOnFocus)
+})
+onBeforeUnmount(() => {
+  stopSync?.()
+  window.removeEventListener('focus', refreshOnFocus)
+})
 </script>
 
 <template>

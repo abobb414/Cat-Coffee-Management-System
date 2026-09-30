@@ -1,8 +1,8 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { deleteTable, fetchTables, saveTable } from '../api/modules'
 import { ElMessage } from 'element-plus'
-import { hasPermission } from '../utils/auth'
+import { hasPermission, hasRole } from '../utils/auth'
 
 const list = ref([])
 const drawerVisible = ref(false)
@@ -10,6 +10,12 @@ const query = reactive({ status: '' })
 const page = reactive({ current: 1, size: 5, total: 0 })
 const canWrite = hasPermission('table:write')
 const canDelete = hasPermission('table:delete')
+// 顾客端只有 table:read，看到的是桌位占用情况而非管理入口，措辞需与菜单、顶栏标题保持一致
+const isCustomerUser = hasRole('user')
+const pageTitle = computed(() => (isCustomerUser ? '桌台状态' : '桌台管理'))
+const pageDescription = computed(() =>
+  isCustomerUser ? '查看门店区域与各桌位的实时占用状态。' : '维护门店区域、桌位容量与当前桌台状态。'
+)
 const form = reactive({
   id: null,
   tableNo: '',
@@ -67,8 +73,8 @@ onMounted(loadData)
   <section>
     <div class="page-header">
       <div>
-        <h2>桌台管理</h2>
-        <p>维护门店区域、桌位容量与当前桌台状态。</p>
+        <h2>{{ pageTitle }}</h2>
+        <p>{{ pageDescription }}</p>
       </div>
       <el-button v-if="canWrite" type="primary" @click="openCreate">新增桌台</el-button>
     </div>

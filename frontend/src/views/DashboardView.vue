@@ -1,6 +1,7 @@
 <script setup>
 import * as echarts from 'echarts'
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { syncBus } from '../utils/syncBus'
 import { fetchDashboard } from '../api/modules'
 
 const dashboard = ref({
@@ -18,9 +19,16 @@ const revenueChartRef = ref(null)
 const statusChartRef = ref(null)
 let revenueChart
 let statusChart
+const loading = ref(false)
 
 const loadData = async () => {
-  dashboard.value = await fetchDashboard()
+  if (loading.value) return
+  loading.value = true
+  try {
+    dashboard.value = await fetchDashboard()
+  } finally {
+    loading.value = false
+  }
   await nextTick()
   renderCharts()
 }
@@ -61,8 +69,16 @@ const renderCharts = () => {
   }
 }
 
-onMounted(loadData)
+let stopSync
+const refreshOnFocus = () => loadData()
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', refreshOnFocus)
+  window.addEventListener('focus', refreshOnFocus)
+})
 onBeforeUnmount(() => {
+  stopSync?.()
+  window.removeEventListener('focus', refreshOnFocus)
   revenueChart?.dispose()
   statusChart?.dispose()
 })
@@ -75,7 +91,7 @@ onBeforeUnmount(() => {
         <h2>经营看板</h2>
         <p>围绕猫咪、座位、预约与订单的运营总览。</p>
       </div>
-      <el-button type="primary" @click="loadData">刷新数据</el-button>
+      <el-button type="primary" :loading="loading" @click="loadData">刷新数据</el-button>
     </div>
 
     <div class="card-grid">

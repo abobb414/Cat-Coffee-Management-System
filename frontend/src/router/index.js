@@ -18,7 +18,10 @@ import { fetchCurrentUser } from '../api/modules'
 import { clearAuth, getHomePath, getToken, hasPermission, setUserInfo } from '../utils/auth'
 
 const routes = [
-  { path: '/', redirect: '/dashboard' },
+  // 落地页必须按角色解析：写死 /dashboard 时，普通用户没有 dashboard:view，
+  // 会被守卫弹回 '/'，'/' 又重定向到 /dashboard，形成死循环（整页刷新直达受限
+  // 地址时表现为 URL 卡住不动 + 反复弹「没有访问权限」）。
+  { path: '/', redirect: () => getHomePath() },
   { path: '/login', component: LoginView, meta: { public: true } },
   { path: '/dashboard', component: DashboardView, meta: { permission: 'dashboard:view', label: '经营看板' } },
   { path: '/cats', component: CatView, meta: { permission: 'cat:read', label: '猫咪管理' } },
@@ -71,8 +74,16 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.meta.permission && !hasPermission(to.meta.permission)) {
+    const home = getHomePath()
     ElMessage.error('当前账号没有访问该页面的权限')
-    next(from.path && from.path !== '/login' ? from.fullPath : getHomePath())
+    // 回落地页；若落地页本身就是被拒页面（或该账号一个页面都进不去），
+    // 直接回登录页，否则会与上面的 '/' 重定向互相反弹成死循环。
+    if (home === to.path || home === '/login') {
+      clearAuth()
+      next('/login')
+      return
+    }
+    next(home)
     return
   }
 

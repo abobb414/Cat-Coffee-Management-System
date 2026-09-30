@@ -47,9 +47,11 @@ const submitRegister = async () => {
 <template>
   <section class="login-shell">
     <div class="login-hero">
-      <img class="login-logo" src="/assets/cat-cafe-logo.png" alt="Cat Cafe Logo" />
-      <h1>猫咖管理平台</h1>
-      <p>Cat Coffee Console</p>
+      <img class="login-logo" src="/assets/hot-chocolate.png" alt="热可可图标" />
+      <div class="login-brand-copy">
+        <h1>猫咖管理平台</h1>
+        <p>Cat Coffee Console</p>
+      </div>
     </div>
 
     <div class="login-card-wrap">

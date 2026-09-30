@@ -6,7 +6,7 @@ spring:
     name: cat-coffee-backend
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/cat_coffee?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    url: jdbc:mysql://localhost:3306/cat_coffee?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 123456
   jackson:
@@ -30,7 +30,9 @@ mybatis-plus:
 
 app:
   cors:
-    allowed-origin: http://localhost:5173
+    # 多个来源用英文逗号分隔。localhost 与 127.0.0.1 是两个不同的 Origin，
+    # 只配一个会导致另一种访问方式登录时报 403 Invalid CORS request。
+    allowed-origin: http://localhost:5173,http://127.0.0.1:5173
   security:
     jwt-secret: cat-coffee-management-system-demo-jwt-secret-key-2026
     access-token-expire-hours: 12

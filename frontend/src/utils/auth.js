@@ -41,14 +41,17 @@ export const getHomePath = () => {
   const permissions = user?.permissions || []
   const roles = user?.roles || []
 
+  // 顾客角色先落地到自己的业务页
   if (roles.includes('user') && permissions.includes('reservation:read')) {
     return '/reservations'
   }
-  if (permissions.includes('points:read')) {
-    return '/member/points'
-  }
+  // 经营看板优先级高于会员积分：staff/admin 同时持有 points:read，
+  // 若把 points 放在前面，管理员和店员登录后会被抢跳到会员积分页而不是看板。
   if (permissions.includes('dashboard:view')) {
     return '/dashboard'
+  }
+  if (permissions.includes('points:read')) {
+    return '/member/points'
   }
   if (permissions.includes('cat:read')) {
     return '/cats'

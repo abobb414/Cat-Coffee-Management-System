@@ -62,6 +62,9 @@ public class OrderServiceImpl implements OrderService {
 
         CustomerOrder order = new CustomerOrder();
         BeanUtils.copyProperties(request, order);
+        // 支付与订单状态必须由服务端控制，客户端不能通过编辑请求伪造结算结果。
+        order.setPayStatus("待支付");
+        order.setOrderStatus("待制作");
         if (isCustomerUser(currentUser)) {
             order.setUserId(currentUser.getId());
             order.setCustomerName(currentUser.getNickname());
@@ -97,6 +100,12 @@ public class OrderServiceImpl implements OrderService {
             order.setUserId(exist.getUserId());
             if (isCustomerUser(currentUser)) {
                 order.setCustomerName(exist.getCustomerName());
+                order.setPayStatus(exist.getPayStatus());
+                order.setOrderStatus(exist.getOrderStatus());
+            } else {
+                // 管理端只允许显式推进既有状态，不接受新增订单的客户端状态覆盖。
+                order.setPayStatus(StringUtils.hasText(request.getPayStatus()) ? request.getPayStatus() : exist.getPayStatus());
+                order.setOrderStatus(StringUtils.hasText(request.getOrderStatus()) ? request.getOrderStatus() : exist.getOrderStatus());
             }
             restoreInventory(request.getId());
             customerOrderMapper.updateById(order);

@@ -3,6 +3,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { deleteCat, fetchCats, saveCat, uploadFile } from '../api/modules'
 import { ElMessage } from 'element-plus'
 import { hasPermission, hasRole } from '../utils/auth'
+import { resourceChanged, syncBus } from '../utils/syncBus'
+import { onBeforeUnmount } from 'vue'
 
 const list = ref([])
 const drawerVisible = ref(false)
@@ -61,6 +63,7 @@ const submit = async () => {
   ElMessage.success('保存成功')
   resetForm()
   drawerVisible.value = false
+  resourceChanged('cats')
   loadData()
 }
 
@@ -86,10 +89,18 @@ const editRow = (row) => {
 const removeRow = async (id) => {
   await deleteCat(id)
   ElMessage.success('删除成功')
+  resourceChanged('cats')
   loadData()
 }
 
-onMounted(loadData)
+let stopSync
+onMounted(() => {
+  loadData()
+  stopSync = syncBus.on('resource-changed', ({ resource }) => {
+    if (resource === 'cats') loadData()
+  })
+})
+onBeforeUnmount(() => stopSync?.())
 </script>
 
 <template>

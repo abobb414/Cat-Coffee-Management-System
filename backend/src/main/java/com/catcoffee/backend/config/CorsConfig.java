@@ -17,7 +17,7 @@ public class CorsConfig {
     public CorsFilter corsFilter(CorsProperties corsProperties) {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of(corsProperties.getAllowedOrigin()));
+        config.setAllowedOrigins(corsProperties.resolvedOrigins());
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
