@@ -9,3 +9,9 @@ frontend/node_modules/
 frontend/dist/
 
 *.log
+
+# AI 协作工具的项目级数据（本地记忆、会话记录），不进版本库
+.workbuddy/
+
+# 根目录遗留的图标源文件（已被 frontend/public/favicon.* 取代）
+/image.png
