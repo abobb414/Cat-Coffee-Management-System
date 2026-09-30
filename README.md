@@ -31,9 +31,6 @@
 
 <table>
 <tr>
-<td colspan="2" align="center"><b>登录与经营看板（管理员视角）</b></td>
-</tr>
-<tr>
 <td colspan="2" align="center"><img src="./docs/screenshots/preview-login.png" alt="登录页" /></td>
 </tr>
 <tr>
@@ -45,20 +42,25 @@
 <tr>
 <td colspan="2" align="center"><sub><b>经营看板</b> · 近 7 天营收趋势、订单状态分布与核心经营指标</sub></td>
 </tr>
-<tr>
-<td colspan="2" align="center"><b>同一份数据的两个视角</b></td>
-</tr>
+</table>
+
+<p align="center">
+<b>同一份数据的两个视角</b><br />
+<sub>同一套接口、同一张表，在管理员与顾客两种角色下的渲染结果</sub>
+</p>
+
+<table>
 <tr>
 <td width="50%" align="center"><img src="./docs/screenshots/preview-cats.png" alt="猫咪管理" /></td>
 <td width="50%" align="center"><img src="./docs/screenshots/preview-reservations.png" alt="我的预约" /></td>
 </tr>
 <tr>
-<td align="center"><sub><b>猫咪管理</b> · 管理员看到的全量档案与在店状态</sub></td>
-<td align="center"><sub><b>我的预约</b> · 普通用户只看到自己的预约</sub></td>
+<td align="center"><sub><b>猫咪管理</b> · 管理员视角</sub></td>
+<td align="center"><sub><b>我的预约</b> · 顾客视角</sub></td>
 </tr>
 </table>
 
-> 四张图取自本机实机运行，未经修饰。左右两张是**同一套接口、同一张表**在两种角色下的渲染结果 ——
+> 四张图取自本机实机运行，未经修饰。管理员看到全量猫咪档案与在店状态，顾客只看到自己的预约 ——
 > 差别不在页面，而在数据范围与菜单可见性（见[权限模型](#权限模型)）。
 
 ---
