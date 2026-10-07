@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login, register } from '../api/modules'
 import { getHomePath, setAuth } from '../utils/auth'
+import { copyrightText } from '../utils/site'
 
 const router = useRouter()
 const activeTab = ref('login')
@@ -102,5 +103,9 @@ const submitRegister = async () => {
         </el-form>
       </div>
     </div>
+
+    <footer class="app-footer login-footer">
+      {{ copyrightText }}
+    </footer>
   </section>
 </template>

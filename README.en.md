@@ -422,7 +422,12 @@ All list endpoints uniformly support `current` (default 1) and `size` (default 1
 
 This project is intended for learning, coursework, and portfolio showcase purposes; no open-source license file is attached. For any other use, please contact the author first.
 
+- **Author**: AlistairBo (GitHub [@abobb414](https://github.com/abobb414))
+- **Copyright**: apart from the Icons8 icon asset, the copyright of all code, documentation, and screenshots in this project belongs to the author.
+
 <div align="center"><sub>
 The project logo uses the "Hot Chocolate" icon from <a href="https://icons8.com">Icons8</a> under its free license (the source SVG is a paid format; the repo contains the native PNG bitmap, not redrawn as vectors).<br/>
-UI screenshots were taken from a real run on my machine and contain no real customer data.
+UI screenshots were taken from a real run on my machine and contain no real customer data.<br/>
+<br/>
+© 2026 <b>AlistairBo</b> · Cat Coffee Management System · All rights reserved.
 </sub></div>

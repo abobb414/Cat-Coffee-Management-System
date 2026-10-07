@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { clearAuth, getToken, getUserInfo, hasRole, setUserInfo } from './utils/auth'
 import { changePassword, fetchCurrentUser, logout as logoutApi } from './api/modules'
 import { syncBus } from './utils/syncBus'
+import { copyrightText } from './utils/site'
 
 const route = useRoute()
 const router = useRouter()
@@ -179,6 +180,10 @@ watch(
         <span class="mobile-topbar-user">{{ userInfo?.nickname || '' }}</span>
       </header>
       <router-view />
+
+      <footer class="app-footer">
+        {{ copyrightText }}
+      </footer>
     </main>
   </div>
 </template>

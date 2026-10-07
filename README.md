@@ -459,7 +459,12 @@ Cat-Coffee-Management-System
 
 本项目用于学习、课程设计与作品集展示场景，未附开源协议文件；如需用于其它用途请先联系作者。
 
+- **作者**：AlistairBo（GitHub [@abobb414](https://github.com/abobb414)）
+- **版权**：除 Icons8 图标资源外，本项目代码、文档与截图的著作权归作者所有。
+
 <div align="center"><sub>
 项目 Logo 采用 <a href="https://icons8.com">Icons8</a> 的「热可可」图标，遵循其免费许可（源 SVG 为付费格式，仓库内为原生 PNG 位图，未做矢量化重绘）。<br/>
-界面截图取自本机实机运行，未包含任何真实顾客数据。
+界面截图取自本机实机运行，未包含任何真实顾客数据。<br/>
+<br/>
+© 2026 <b>AlistairBo</b> · 猫咖管理系统 · Cat Coffee Management System · All rights reserved.
 </sub></div>
